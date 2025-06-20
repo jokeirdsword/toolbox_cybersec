@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Toolbox Cybersécurité</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  
+</head>
+<body>
+
+
+</div>
+
+ <div class="container mt-5">
+  <h2 class="text-center mb-4">Entrez une IP, un domaine ou une URL</h2>
+  <form id="scanForm" class="text-center mb-5">
+    <input type="text" class="form-control" id="target" placeholder="Ex: 192.168.1.1 ou example.com">
+  </form>
+
+    <!-- Barre de progression -->
+  <div class="progress mb-4">
+    <div class="progress-bar" id="progress-bar" role="progressbar" style="width: 0%;">0%</div>
+  </div>
+
+
+<div class="row text-center">
+      <!-- Colonne 1 : Scan Réseau -->
+      <div class="col-md-3 mb-4">
+        <div class="category-title">🔐 Scan Réseau</div>
+        <button class="btn btn-primary w-100 mb-2" onclick="runScan('scan_nmap')">Scan Nmap</button>
+        <button class="btn btn-primary  w-100 mb-2" onclick="runScan('scan_ip')">Recherche IP</button>
+       <button class="btn btn-primary w-100 mb-2" onclick="runScan('scan_ettercap')">Lancer Ettercap</button>
+        <button class="btn btn-primary w-100 mb-2" onclick="runScan('scan_sqlmap')">Scan Injection SQL (SQLMap)</button>
+        <button class="btn btn-primary w-100 mb-2" onclick="runScan('scan_xss')">Scan XSS (XSStrike)</button>
+
+      </div>
+
+      <!-- Colonne 2 : Reconnaissance -->
+      <div class="col-md-3 mb-4">
+        <div class="category-title">🌐 Reconnaissance</div>
+        <button class="btn btn-warning w-100 mb-2" onclick="runScan('scan_whois')">Scan WHOIS</button>
+        <button class="btn btn-warning w-100 mb-2" onclick="runScan('scan_dirs')">Scan Répertoires (Gobuster)</button>
+        <button class="btn btn-warning w-100 mb-2" onclick="runScan('scan_ssl')">Scan SSL/TLS</button>
+        <button class="btn btn-warning w-100 mb-2" onclick="runScan('scan_tech')">Wappalyzer</button>
+      </div>
+
+      <!-- Colonne 3 : Vulnérabilités -->
+      <div class="col-md-3 mb-4">
+        <div class="category-title">🛡️ Vulnérabilités</div>
+        <button class="btn btn-danger w-100 mb-2" onclick="runScan('scan_vuln')">Scan Vulnérabilités avec Nikto</button>
+        <button class="btn btn-danger w-100 mb-2" onclick="runScan('scan_waf')">Détection WAF</button>
+       <button class="btn btn-danger w-100 mb-2" onclick="runScan('scan_bruteforce')">Brute-force avec Hydra</button>
+      </div>
+
+      <!-- Colonne 4 : Avancé -->
+      <div class="col-md-3 mb-4">
+        <div class="category-title">🧠 Avancé</div>
+        <button class="btn btn-dark w-100 mb-2" onclick="runScan('scan_sensitive_files')">Fichiers sensibles</button>
+        <button class="btn btn-dark w-100 mb-2" onclick="runScan('scan_js')">Fichiers JS</button>
+        <button class="btn btn-dark w-100 mb-2" onclick="runScan('scan_metasploit')">Scan Metasploit</button>
+        <button class="btn btn-dark w-100 mb-2" onclick="runScan('scan_volatility')">Analyse Mémoire (Volatility)</button>
+        <button class="btn btn-dark w-100 mb-2" onclick="runScan('scan_cuckoo')">Analyse Sandbox (Cuckoo)</button>
+        <button class="btn btn-dark w-100 mb-2" onclick="runScan('scan_yara')">Scan YARA</button>
+
+      </div>
+
+    </div>
+
+
+
+
+    <!-- Résultat -->
+    <pre id="scan_result" style="background-color:#111; color:#0f0; padding: 10px; border-radius: 5px; white-space: pre-wrap; font-family: monospace;"></pre>
+
+  </div>
+</div>
+  <hr>
+<div class="text-center mt-4">
+  <h5>Exporter les résultats :</h5>
+  <button onclick="exportResult('json')" class="btn btn-outline-primary m-2">📄 Export JSON</button>
+  <button onclick="exportResult('csv')" class="btn btn-outline-success m-2">📊 Export CSV</button>
+  <button onclick="exportResult('pdf')" class="btn btn-outline-danger m-2">🖨️ Export PDF</button>
+</div>
+
+ <script>
+function exportResult(type) {
+    const resultElement = document.getElementById('scan_result');
+    if (!resultElement || !resultElement.innerText.trim()) {
+        alert("Aucun résultat à exporter !");
+        return;
+    }
+
+    const data = resultElement.innerText;
+
+    if (type === 'json') {
+        const blob = new Blob([data], { type: "application/json" });
+        downloadBlob(blob, "result.json");
+    } else if (type === 'csv') {
+        // Conversion très simple (juste pour clé: valeur)
+        const lines = data.split("\\n");
+        const csv = lines.map(line => `"${line.replace(/"/g, '""')}"`).join("\\n");
+        const blob = new Blob([csv], { type: "text/csv" });
+        downloadBlob(blob, "result.csv");
+    } else if (type === 'pdf') {
+        const doc = new jsPDF();
+        doc.setFontSize(12);
+        const lines = doc.splitTextToSize(data, 180); // 180mm de largeur
+        doc.text(lines, 10, 10);
+        doc.save("result.pdf");
+    }
+}
+
+function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+
+
+
+
+
+
+ 
+    function runScan(endpoint) {
+      const target = document.getElementById("target").value;
+      if (!target) {
+        alert("Veuillez entrer une IP, un domaine ou une URL !");
+        return;
+      }
+
+      fetch(`/${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ target: target })
+      })
+.then(response => response.json())
+
+.then(data => {
+  stopScan();
+  if (data.result) {
+    // Remplacer les \n littéraux par de vrais retours à la ligne
+    const text = data.result.replace(/\\n/g, '\n');
+    resultBox.innerText = text;
+  } else if (data.error) {
+    resultBox.innerText = "Erreur : " + data.error;
+  } else {
+    resultBox.innerText = JSON.stringify(data, null, 2);
+  }
+})
+
+
+
+.catch(error => {
+  alert("Erreur lors du scan !");
+  console.error(error);
+});
+    }
+
+ let progressInterval;
+
+ 
+
+function runScan(endpoint) {
+  const target = document.getElementById("target").value.trim();
+   const resultBox = document.getElementById("scan_result"); 
+  const progressBar = document.getElementById("progress-bar");
+
+  
+
+  if (!target) {
+    alert("Veuillez entrer une IP, un domaine ou une URL !");
+    return;
+  }
+
+  
+
+  // Démarrer la barre de progression
+  startScan();
+
+  // Nettoyer les anciens résultats
+  resultBox.style.display = "none";
+  resultBox.innerText = "";
+
+  fetch(`/${endpoint}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ target: target })
+  })
+  .then(response => response.json())
+ .then(data => {
+  stopScan();
+  resultBox.style.display = "block";
+  
+  // Si le résultat contient une propriété 'result', l'afficher directement
+  if (data.result) {
+    // Remplacer les \n par de vrais sauts de ligne HTML
+    resultBox.innerHTML = data.result.replace(/\n/g, '<br>');
+  } 
+  // Sinon afficher le JSON formaté
+  else {
+    resultBox.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+  }
+})
+  .catch(error => {
+    stopScan();
+    resultBox.style.display = "block";
+    resultBox.textContent = "Erreur : " + error;
+  });
+}
+
+function startScan() {
+  let progress = 0;
+  const progressBar = document.getElementById('progress-bar');
+  progressBar.classList.add("progress-bar-striped", "progress-bar-animated");
+  progressBar.style.width = '0%';
+  progressBar.innerText = '0%';
+
+  progressInterval = setInterval(() => {
+    if (progress >= 99) return;
+    progress += 1;
+    progressBar.style.width = progress + '%';
+    progressBar.innerText = progress + '%';
+  }, 100);
+}
+
+function stopScan() {
+  clearInterval(progressInterval);
+  const progressBar = document.getElementById('progress-bar');
+  progressBar.style.width = '100%';
+  progressBar.innerText = 'Terminé';
+  progressBar.classList.remove("progress-bar-striped", "progress-bar-animated");
+}
+
+
+async function exportResult(type) {
+    const resultElement = document.getElementById('scan_result');
+    if (!resultElement || !resultElement.innerText.trim()) {
+        alert("Aucun résultat à exporter !");
+        return;
+    }
+
+    const data = resultElement.innerText;
+
+    if (type === 'json') {
+        const blob = new Blob([data], { type: "application/json" });
+        downloadBlob(blob, "result.json");
+    } else if (type === 'csv') {
+        const lines = data.split("\n");
+        const csv = lines.map(line => `"${line.replace(/"/g, '""')}"`).join("\n");
+        const blob = new Blob([csv], { type: "text/csv" });
+        downloadBlob(blob, "result.csv");
+    } else if (type === 'pdf') {
+        const { jsPDF } = window.jspdf; // Import depuis le module UMD
+        const doc = new jsPDF();
+        const lines = doc.splitTextToSize(data, 180); // Largeur du texte max : 180mm
+        doc.setFontSize(12);
+        doc.text(lines, 10, 10);
+        doc.save("result.pdf");
+    }
+}
+
+function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+
+  </script>
+</body>
+</html>

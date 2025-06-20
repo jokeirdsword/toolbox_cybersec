@@ -1,0 +1,39 @@
+# Framework web
+Flask
+flask-cors
+
+# Requêtes HTTP
+requests
+dnspython
+
+# Analyse de pages web
+beautifulsoup4
+lxml
+
+# Extraction HTML/JS, parsing
+html5lib
+urllib3
+
+# Scanner de ports/technos (si analyse avec headers)
+python-wappalyzer
+
+# Whois
+python-whois
+
+# Fichiers JSON/YAML si utilisés
+PyYAML
+
+# Analyse SSL (si scan_ssl utilise requests/ssl ou custom)
+cryptography
+
+# Regex + parsing de fichiers
+regex
+
+# Pour exécuter des commandes système
+psutil
+
+# Pour les fichiers JS ou DOM parsing (si utile)
+jsbeautifier
+
+# XSS
+fuzzywuzzy==0.18.0
